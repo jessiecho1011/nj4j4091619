@@ -19,7 +19,8 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
   const [editItem, setEditItem] = useState<string>('');
   const [editAmount, setEditAmount] = useState<number>(0);
   const [editCurrency, setEditCurrency] = useState<string>('PHP');
-  const [editPayer, setEditPayer] = useState<string>('Alice');
+  const [editPayer, setEditPayer] = useState<string>('鮭魚');
+  const [editParticipants, setEditParticipants] = useState<string[]>(['鮭魚', 'Coni']);
 
   // 格式化日期
   const formatDate = (dateStr: string) => {
@@ -42,11 +43,8 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
   // 取得代墊人顏色樣式
   const getPayerStyle = (payer: string) => {
     const colors: { [key: string]: string } = {
-      Alice: 'bg-emerald-50 text-emerald-700 border-emerald-100',
-      Bob: 'bg-amber-50 text-amber-700 border-amber-100',
-      Charlie: 'bg-purple-50 text-purple-700 border-purple-100',
-      Danny: 'bg-teal-50 text-teal-700 border-teal-100',
       鮭魚: 'bg-orange-50 text-orange-700 border-orange-100',
+      Coni: 'bg-emerald-50 text-emerald-700 border-emerald-100',
     };
     return colors[payer] || 'bg-slate-50 text-slate-700 border-slate-100';
   };
@@ -75,6 +73,7 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
     setEditAmount(exp.amount);
     setEditCurrency(exp.currency);
     setEditPayer(exp.payer);
+    setEditParticipants(exp.participants || ['鮭魚', 'Coni']);
     setIsModalOpen(true);
   };
 
@@ -100,6 +99,7 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
         currency: editCurrency,
         payer: editPayer,
         date: currentEditExpense.date, // 保持原始日期
+        participants: editParticipants,
       });
 
       // 本地局部更新 React State 該筆資料項目
@@ -119,7 +119,7 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
   };
 
   // 常用旅伴選項
-  const payerOptions = ['Alice', 'Bob', 'Charlie', 'Danny', '鮭魚'];
+  const payerOptions = ['鮭魚', 'Coni'];
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden">
@@ -138,6 +138,7 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
               <th className="py-4 px-6">消費日期</th>
               <th className="py-4 px-6">消費項目</th>
               <th className="py-4 px-6">代墊人</th>
+              <th className="py-4 px-6">分攤旅伴</th>
               <th className="py-4 px-6 text-right">原始金額</th>
               <th className="py-4 px-6 text-right">換算台幣 (TWD)</th>
               <th className="py-4 px-6 text-center">操作</th>
@@ -158,6 +159,11 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getPayerStyle(exp.payer)}`}>
                       {exp.payer}
                     </span>
+                  </td>
+                  <td className="py-4 px-6 font-semibold text-slate-650 text-xs">
+                    {exp.participants && exp.participants.length > 0
+                      ? (exp.participants.length === 2 ? '兩人平分' : exp.participants.join(', '))
+                      : '兩人平分'}
                   </td>
                   <td className="py-4 px-6 text-right font-medium text-slate-600 whitespace-nowrap">
                     {formatAmount(exp.amount, exp.currency)}
@@ -208,7 +214,12 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
                 <div className="flex items-center gap-3">
                   <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-2xs font-semibold border ${getPayerStyle(exp.payer)}`}>
                     <User className="w-2.5 h-2.5 mr-0.5" />
-                    {exp.payer}
+                    {exp.payer} (付)
+                  </span>
+                  <span className="text-slate-500 bg-slate-50 border border-slate-150 px-2 py-0.5 rounded-full text-2xs font-semibold">
+                    分攤: {exp.participants && exp.participants.length > 0
+                      ? (exp.participants.length === 2 ? '兩人' : exp.participants.join(', '))
+                      : '兩人'}
                   </span>
                   <span className="flex items-center gap-1">
                     <Calendar className="w-3 h-3 text-slate-400" />
@@ -338,6 +349,39 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
                     </option>
                   ))}
                 </select>
+              </div>
+
+              {/* 參與分攤人 */}
+              <div>
+                <label className="block text-2xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  參與分攤人 (至少選擇一位)
+                </label>
+                <div className="flex gap-4 p-3 border border-slate-200 rounded-xl bg-white">
+                  {['鮭魚', 'Coni'].map((name) => {
+                    const isChecked = editParticipants.includes(name);
+                    return (
+                      <label key={name} className="flex items-center gap-2 font-semibold text-slate-700 text-sm cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => {
+                            if (isChecked) {
+                              if (editParticipants.length > 1) {
+                                setEditParticipants(editParticipants.filter(p => p !== name));
+                              } else {
+                                alert('每筆消費至少需有一位參與分攤人！');
+                              }
+                            } else {
+                              setEditParticipants([...editParticipants, name]);
+                            }
+                          }}
+                          className="w-4 h-4 text-teal-600 border-slate-300 rounded-sm"
+                        />
+                        {name}
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* 送出與取消按鈕 */}

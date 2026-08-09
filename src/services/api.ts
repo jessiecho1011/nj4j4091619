@@ -38,91 +38,102 @@ const MOCK_ITINERARY: ItineraryDay[] = [
 const MOCK_EXPENSES: Expense[] = [
   {
     id: 'exp-1',
-    item: '宿霧航空來回機票 (4人)',
-    amount: 32000,
+    item: '宿霧航空來回機票 (2人)',
+    amount: 16000,
     currency: 'TWD',
-    payer: 'Danny',
+    payer: '鮭魚',
     date: '2026-08-15T10:00:00Z',
+    participants: ['鮭魚', 'Coni'],
   },
   {
     id: 'exp-2',
     item: 'Maribago 渡假村住宿 (3晚兩房)',
     amount: 22000,
     currency: 'PHP',
-    payer: 'Bob',
+    payer: 'Coni',
     date: '2026-09-01T15:00:00Z',
+    participants: ['鮭魚', 'Coni'],
   },
   {
     id: 'exp-3',
     item: '馬克坦島豪華海鮮迎賓晚餐',
     amount: 5400,
     currency: 'PHP',
-    payer: 'Alice',
+    payer: '鮭魚',
     date: '2026-09-01T19:00:00Z',
+    participants: ['鮭魚', 'Coni'],
   },
   {
     id: 'exp-4',
-    item: '網卡與包車接送預付 (4人)',
-    amount: 2500,
+    item: '網卡與包車接送預付 (2人)',
+    amount: 1500,
     currency: 'TWD',
-    payer: 'Danny',
+    payer: '鮭魚',
     date: '2026-08-31T09:00:00Z',
+    participants: ['鮭魚', 'Coni'],
   },
   {
     id: 'exp-5',
-    item: '歐斯陸鯨鯊共游門票 (4人)',
+    item: '歐斯陸鯨鯊共游門票 (2人)',
     amount: 1200,
     currency: 'PHP',
-    payer: 'Alice',
+    payer: '鮭魚',
     date: '2026-09-02T08:00:00Z',
+    participants: ['鮭魚', 'Coni'],
   },
   {
     id: 'exp-6',
     item: '圖馬洛瀑布小車接駁與門票',
     amount: 800,
     currency: 'PHP',
-    payer: 'Charlie',
+    payer: 'Coni',
     date: '2026-09-02T11:30:00Z',
+    participants: ['鮭魚', 'Coni'],
   },
   {
     id: 'exp-7',
     item: '墨寶沙丁魚風暴私人包船浮潛',
     amount: 7500,
     currency: 'PHP',
-    payer: 'Charlie',
+    payer: 'Coni',
     date: '2026-09-03T09:00:00Z',
+    participants: ['鮭魚', 'Coni'],
   },
   {
     id: 'exp-8',
-    item: '卡瓦森瀑布 Canyoneering 溯溪攀岩 (4人)',
-    amount: 9600,
+    item: '卡瓦森瀑布 Canyoneering 溯溪攀岩 (2人)',
+    amount: 4800,
     currency: 'PHP',
-    payer: 'Danny',
+    payer: '鮭魚',
     date: '2026-09-03T13:00:00Z',
+    participants: ['鮭魚', 'Coni'],
   },
   {
     id: 'exp-9',
     item: '卡瓦森菲式烤肉慶功午餐',
     amount: 3200,
     currency: 'PHP',
-    payer: 'Bob',
+    payer: 'Coni',
     date: '2026-09-03T16:30:00Z',
+    participants: ['鮭魚', 'Coni'],
   },
   {
     id: 'exp-10',
-    item: 'SM Seaside 芒果乾與伴手禮採購',
-    amount: 6000,
+    item: 'SM Seaside 芒果乾伴手禮 (鮭魚自買)',
+    amount: 3000,
     currency: 'PHP',
-    payer: 'Alice',
+    payer: '鮭魚',
     date: '2026-09-04T12:00:00Z',
+    participants: ['鮭魚'],
   },
   {
     id: 'exp-11',
-    item: '聖嬰大教堂歷史導覽與蠟燭許願',
+    item: '聖嬰大教堂紀念香氛 (Coni自買)',
     amount: 600,
     currency: 'PHP',
-    payer: 'Bob',
+    payer: 'Coni',
     date: '2026-09-04T10:00:00Z',
+    participants: ['Coni'],
   },
 ];
 
@@ -282,13 +293,25 @@ export async function getExpenses(): Promise<Expense[]> {
 
     // 對資料屬性做對應，比如 itemName -> item
     const adaptedExpenses: Expense[] = rawList.map((item: any, index: number) => {
+      // 解析 participants
+      let participants: string[] | undefined = undefined;
+      if (Array.isArray(item.participants)) {
+        participants = item.participants;
+      } else if (item.participants) {
+        participants = String(item.participants)
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean);
+      }
+
       return {
         id: item.id || `adapted-exp-${index}`,
         item: item.item || item.itemName || '消費項目',
         amount: Number(item.amount) || 0,
         currency: item.currency || 'PHP',
         payer: item.payer || 'Anonymous',
-        date: item.date || new Date().toISOString()
+        date: item.date || new Date().toISOString(),
+        participants: participants
       };
     });
 
@@ -324,13 +347,14 @@ export async function updateExpense(id: string, expense: Partial<Expense>): Prom
     } as Expense;
   }
 
-  // 準備給後端的 JSON 欄位：後端 PUT API 預期接收 item、amount、currency、payer
+  // 準備給後端的 JSON 欄位
   const payload: any = {
     item: expense.item,
     amount: Number(expense.amount),
     currency: expense.currency,
     payer: expense.payer,
     date: expense.date,
+    participants: expense.participants, // 新增 participants 傳遞
   };
 
   const response = await fetch(`${API_BASE_URL}/api/expenses/${id}`, {
@@ -348,6 +372,16 @@ export async function updateExpense(id: string, expense: Partial<Expense>): Prom
   const json = await response.json();
   const rawItem = json.success && json.data ? json.data : json;
 
+  let participants: string[] | undefined = undefined;
+  if (Array.isArray(rawItem.participants)) {
+    participants = rawItem.participants;
+  } else if (rawItem.participants) {
+    participants = String(rawItem.participants)
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+
   // 做屬性對應 itemName -> item
   return {
     id: rawItem.id || id,
@@ -356,5 +390,6 @@ export async function updateExpense(id: string, expense: Partial<Expense>): Prom
     currency: rawItem.currency || expense.currency || 'PHP',
     payer: rawItem.payer || expense.payer || 'Anonymous',
     date: rawItem.date || expense.date || new Date().toISOString(),
+    participants: participants || expense.participants
   };
 }

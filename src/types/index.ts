@@ -6,6 +6,7 @@ export interface Expense {
   currency: string;  // 幣別 (例如: TWD, KRW)
   payer: string;     // 代墊人名字
   date: string;      // 消費日期 (ISO string)
+  participants?: string[]; // 參與分攤的旅伴名字列表
 }
 
 // 2. 行程資料 (對應後端 GET /api/itinerary)

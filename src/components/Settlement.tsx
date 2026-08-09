@@ -48,7 +48,7 @@ export default function Settlement({ expenses, onExpensesChange }: SettlementPro
           </div>
         </div>
 
-        {/* 卡片 2: 平分人數 */}
+        {/* 卡片 2: 旅伴人數 */}
         <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-xs flex items-center gap-5 hover:shadow-md transition-shadow">
           <div className="p-4 rounded-xl bg-amber-50 text-amber-600">
             <Users className="w-8 h-8" />
@@ -56,7 +56,7 @@ export default function Settlement({ expenses, onExpensesChange }: SettlementPro
           <div>
             <div className="text-sm font-medium text-slate-400">分帳旅伴人數</div>
             <div className="text-2xl font-black text-slate-800 mt-1">
-              {balances.length} 人平分
+              {balances.length} 人參與
             </div>
             <div className="text-xs text-slate-500 mt-1">
               {balances.map(b => b.name).join(', ')}
@@ -64,18 +64,18 @@ export default function Settlement({ expenses, onExpensesChange }: SettlementPro
           </div>
         </div>
 
-        {/* 卡片 3: 每人應付 */}
+        {/* 卡片 3: 人均消費 */}
         <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-xs flex items-center gap-5 hover:shadow-md transition-shadow">
           <div className="p-4 rounded-xl bg-emerald-50 text-emerald-600">
             <DollarSign className="w-8 h-8" />
           </div>
           <div>
-            <div className="text-sm font-medium text-slate-400">每人應付金額 (均攤)</div>
+            <div className="text-sm font-medium text-slate-400">人均消費金額 (均攤)</div>
             <div className="text-2xl font-black text-slate-800 mt-1">
               NT$ {Math.round(sharePerPersonTWD).toLocaleString()}
             </div>
-            <div className="text-xs text-emerald-600 mt-1 font-medium">
-              每人平均應付款項
+            <div className="text-xs text-emerald-650 mt-1 font-medium">
+              總花費均攤到每人的基準額
             </div>
           </div>
         </div>
@@ -101,11 +101,10 @@ export default function Settlement({ expenses, onExpensesChange }: SettlementPro
               return (
                 <div
                   key={person.name}
-                  className={`p-5 rounded-2xl border transition-all ${
-                    isCreditor
+                  className={`p-5 rounded-2xl border transition-all ${isCreditor
                       ? 'bg-emerald-50/20 border-emerald-100/60 hover:border-emerald-200'
                       : 'bg-rose-50/20 border-rose-100/60 hover:border-rose-200'
-                  }`}
+                    }`}
                 >
                   <div className="flex justify-between items-start">
                     <div>
@@ -113,13 +112,15 @@ export default function Settlement({ expenses, onExpensesChange }: SettlementPro
                       <div className="text-xs text-slate-400 mt-1">
                         實際代墊: NT$ {Math.round(person.paidTWD).toLocaleString()}
                       </div>
+                      <div className="text-xs text-slate-400 mt-0.5">
+                        實際應付: NT$ {Math.round(person.shareTWD).toLocaleString()}
+                      </div>
                     </div>
                     <span
-                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold ${
-                        isCreditor
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold ${isCreditor
                           ? 'bg-emerald-100 text-emerald-800'
                           : 'bg-rose-100 text-rose-800'
-                      }`}
+                        }`}
                     >
                       {isCreditor ? (
                         <>
@@ -138,9 +139,8 @@ export default function Settlement({ expenses, onExpensesChange }: SettlementPro
                   <div className="mt-4 flex items-baseline gap-1">
                     <span className="text-xs font-semibold text-slate-500">餘額</span>
                     <span
-                      className={`text-xl font-black ${
-                        isCreditor ? 'text-emerald-600' : 'text-rose-600'
-                      }`}
+                      className={`text-xl font-black ${isCreditor ? 'text-emerald-600' : 'text-rose-600'
+                        }`}
                     >
                       {isCreditor ? '+' : ''}
                       {Math.round(person.balanceTWD).toLocaleString()}

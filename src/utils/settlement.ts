@@ -1,10 +1,10 @@
 import { Expense, ParticipantBalance, TransferSuggestion } from '../types';
 
-export const TOTAL_PARTICIPANTS = 4;
+export const TOTAL_PARTICIPANTS = 2;
 export const EXCHANGE_RATE_PHP_TO_TWD = 1.7; // 1 TWD = 1.7 PHP
 
 // 旅伴名單
-export const PARTICIPANTS = ['Alice', 'Bob', 'Charlie', 'Danny'];
+export const PARTICIPANTS = ['鮭魚', 'Coni'];
 
 /**
  * 將消費金額統一換算為 TWD
@@ -24,34 +24,19 @@ export function calculateBalances(expenses: Expense[]): {
   totalTWD: number;
   sharePerPersonTWD: number;
 } {
-  // 動態推導參與者名單 (至少包含 expenses 出現的人，並補足到至少 4 人)
-  const activePayers = new Set<string>();
-  expenses.forEach((e) => {
-    if (e.payer && e.payer.trim()) {
-      activePayers.add(e.payer.trim());
-    }
-  });
+  const defaults = ['鮭魚', 'Coni'];
+  const participantList = [...defaults];
 
-  const defaults = ['Alice', 'Bob', 'Charlie', 'Danny'];
-  const participantList = Array.from(activePayers);
-  
-  // 用預設人名補齊到 4 人
-  for (const name of defaults) {
-    if (participantList.length >= TOTAL_PARTICIPANTS) {
-      break;
-    }
-    if (!participantList.includes(name)) {
-      participantList.push(name);
-    }
-  }
-
-  // 初始化每人的代墊金額
+  // 初始化每人的代墊與應付分攤金額
   const paidMap: { [key: string]: number } = {};
+  const shareMap: { [key: string]: number } = {};
+  
   participantList.forEach((name) => {
     paidMap[name] = 0;
+    shareMap[name] = 0;
   });
 
-  // 加總代墊金額
+  // 加總代墊與分攤金額
   let totalTWD = 0;
   expenses.forEach((exp) => {
     const amountTWD = convertToTWD(exp.amount, exp.currency);
@@ -59,28 +44,50 @@ export function calculateBalances(expenses: Expense[]): {
     
     const payerName = exp.payer?.trim() || 'Anonymous';
     
-    // 如果此代墊人不在我們的名單中
+    // 如果此代墊人不在我們的名單中，動態加入
     if (paidMap[payerName] === undefined) {
       paidMap[payerName] = 0;
+      shareMap[payerName] = 0;
       if (!participantList.includes(payerName)) {
         participantList.push(payerName);
       }
     }
     paidMap[payerName] += amountTWD;
+
+    // 計算分攤參與者
+    let pList = exp.participants;
+    if (!pList || pList.length === 0) {
+      // 若無指定，預設由鮭魚跟Coni共同分攤
+      pList = defaults;
+    }
+
+    const shareTWDPerPerson = amountTWD / pList.length;
+    pList.forEach((pName) => {
+      const trimmedPName = pName.trim();
+      if (paidMap[trimmedPName] === undefined) {
+        paidMap[trimmedPName] = 0;
+        shareMap[trimmedPName] = 0;
+        if (!participantList.includes(trimmedPName)) {
+          participantList.push(trimmedPName);
+        }
+      }
+      shareMap[trimmedPName] += shareTWDPerPerson;
+    });
   });
 
-  // 實際均攤人數
-  const finalParticipantsCount = participantList.length || TOTAL_PARTICIPANTS;
+  // 平均應付金額
+  const finalParticipantsCount = participantList.length || defaults.length;
   const sharePerPersonTWD = totalTWD / finalParticipantsCount;
 
   // 構造每位旅伴的 Balance 物件
   const balances: ParticipantBalance[] = participantList.map((name) => {
     const paidTWD = paidMap[name] || 0;
-    const balanceTWD = paidTWD - sharePerPersonTWD;
+    const shareTWD = shareMap[name] || 0;
+    const balanceTWD = paidTWD - shareTWD;
     return {
       name,
       paidTWD: Math.round(paidTWD * 100) / 100, // 保留兩位小數
-      shareTWD: Math.round(sharePerPersonTWD * 100) / 100,
+      shareTWD: Math.round(shareTWD * 100) / 100,
       balanceTWD: Math.round(balanceTWD * 100) / 100,
     };
   });
