@@ -10,7 +10,7 @@ interface SettlementProps {
 }
 
 export default function Settlement({ expenses, onExpensesChange }: SettlementProps) {
-  const { balances, totalTWD, sharePerPersonTWD } = calculateBalances(expenses);
+  const { balances, totalTWD } = calculateBalances(expenses);
   const transferSuggestions = generateTransferPlan(balances);
 
   return (
@@ -64,18 +64,22 @@ export default function Settlement({ expenses, onExpensesChange }: SettlementPro
           </div>
         </div>
 
-        {/* 卡片 3: 人均消費 */}
+        {/* 卡片 3: 旅伴各自支出 */}
         <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-xs flex items-center gap-5 hover:shadow-md transition-shadow">
           <div className="p-4 rounded-xl bg-emerald-50 text-emerald-600">
-            <DollarSign className="w-8 h-8" />
+            <Users className="w-8 h-8" />
           </div>
-          <div>
-            <div className="text-sm font-medium text-slate-400">人均消費金額 (均攤)</div>
-            <div className="text-2xl font-black text-slate-800 mt-1">
-              NT$ {Math.round(sharePerPersonTWD).toLocaleString()}
-            </div>
-            <div className="text-xs text-emerald-650 mt-1 font-medium">
-              總花費均攤到每人的基準額
+          <div className="w-full">
+            <div className="text-sm font-medium text-slate-400">旅伴各自支出</div>
+            <div className="mt-2 space-y-1.5">
+              {balances.map((person) => (
+                <div key={person.name} className="flex justify-between items-center text-sm">
+                  <span className="font-semibold text-slate-600">{person.name}</span>
+                  <span className="font-black text-slate-800">
+                    NT$ {Math.round(person.shareTWD).toLocaleString()}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>

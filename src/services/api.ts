@@ -311,7 +311,7 @@ export async function getExpenses(): Promise<Expense[]> {
         currency: item.currency || 'PHP',
         payer: item.payer || 'Anonymous',
         date: item.date || new Date().toISOString(),
-        participants: participants
+        participants: participants || ['鮭魚', 'Coni']
       };
     });
 
@@ -390,6 +390,6 @@ export async function updateExpense(id: string, expense: Partial<Expense>): Prom
     currency: rawItem.currency || expense.currency || 'PHP',
     payer: rawItem.payer || expense.payer || 'Anonymous',
     date: rawItem.date || expense.date || new Date().toISOString(),
-    participants: participants || expense.participants
+    participants: participants || expense.participants || ['鮭魚', 'Coni']
   };
 }

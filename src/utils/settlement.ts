@@ -1,10 +1,18 @@
 import { Expense, ParticipantBalance, TransferSuggestion } from '../types';
 
-export const TOTAL_PARTICIPANTS = 2;
+export const ALL_TRAVELERS = ['鮭魚', 'Coni'];
+export const PARTICIPANTS = ALL_TRAVELERS;
+export const TOTAL_PARTICIPANTS = ALL_TRAVELERS.length;
 export const EXCHANGE_RATE_PHP_TO_TWD = 1.7; // 1 TWD = 1.7 PHP
 
-// 旅伴名單
-export const PARTICIPANTS = ['鮭魚', 'Coni'];
+/**
+ * 旅伴名稱標準化輔助函式
+ */
+export function normalizeName(name: string): string {
+  if (typeof name !== 'string') return name;
+  const trimmed = name.trim();
+  return trimmed.toLowerCase() === 'coni' ? 'Coni' : trimmed;
+}
 
 /**
  * 將消費金額統一換算為 TWD
@@ -24,71 +32,57 @@ export function calculateBalances(expenses: Expense[]): {
   totalTWD: number;
   sharePerPersonTWD: number;
 } {
-  const defaults = ['鮭魚', 'Coni'];
-  const participantList = [...defaults];
-
-  // 初始化每人的代墊與應付分攤金額
-  const paidMap: { [key: string]: number } = {};
-  const shareMap: { [key: string]: number } = {};
-  
-  participantList.forEach((name) => {
-    paidMap[name] = 0;
-    shareMap[name] = 0;
+  // 建立一個物件來記錄每個人的財務狀態
+  const financialState: { [key: string]: { Paid: number; Owed: number; Balance: number } } = {};
+  ALL_TRAVELERS.forEach((name) => {
+    financialState[name] = { Paid: 0, Owed: 0, Balance: 0 };
   });
 
-  // 加總代墊與分攤金額
   let totalTWD = 0;
+
+  // 遍歷所有 Expense 資料
   expenses.forEach((exp) => {
     const amountTWD = convertToTWD(exp.amount, exp.currency);
     totalTWD += amountTWD;
-    
-    const payerName = exp.payer?.trim() || 'Anonymous';
-    
-    // 如果此代墊人不在我們的名單中，動態加入
-    if (paidMap[payerName] === undefined) {
-      paidMap[payerName] = 0;
-      shareMap[payerName] = 0;
-      if (!participantList.includes(payerName)) {
-        participantList.push(payerName);
-      }
-    }
-    paidMap[payerName] += amountTWD;
 
-    // 計算分攤參與者
-    let pList = exp.participants;
-    if (!pList || pList.length === 0) {
-      // 若無指定，預設由鮭魚跟Coni共同分攤
-      pList = defaults;
+    const payerName = normalizeName(exp.payer?.trim() || '');
+    
+    // 已付計算：將該筆 TWD 金額加到 payer (代墊人) 的 Paid 數值中
+    if (financialState[payerName] !== undefined) {
+      financialState[payerName].Paid += amountTWD;
     }
 
-    const shareTWDPerPerson = amountTWD / pList.length;
-    pList.forEach((pName) => {
-      const trimmedPName = pName.trim();
-      if (paidMap[trimmedPName] === undefined) {
-        paidMap[trimmedPName] = 0;
-        shareMap[trimmedPName] = 0;
-        if (!participantList.includes(trimmedPName)) {
-          participantList.push(trimmedPName);
+    // 應付計算：計算該筆花費的單人分攤金額 (該筆 TWD 金額 / participants.length)
+    const rawParts = exp.participants || ALL_TRAVELERS;
+    const parts = Array.from(new Set(rawParts.map((p) => normalizeName(p))));
+    if (parts.length > 0) {
+      const shareTWDPerPerson = amountTWD / parts.length;
+      // 遍歷 participants 陣列，將單人分攤金額加到每個參與者的 Owed 數值中
+      parts.forEach((pName) => {
+        if (financialState[pName] !== undefined) {
+          financialState[pName].Owed += shareTWDPerPerson;
         }
-      }
-      shareMap[trimmedPName] += shareTWDPerPerson;
-    });
+      });
+    }
   });
 
-  // 平均應付金額
-  const finalParticipantsCount = participantList.length || defaults.length;
-  const sharePerPersonTWD = totalTWD / finalParticipantsCount;
+  // 餘額計算：遍歷所有旅伴，計算 Balance = Paid - Owed
+  ALL_TRAVELERS.forEach((name) => {
+    const state = financialState[name];
+    state.Balance = state.Paid - state.Owed;
+  });
+
+  // 平均應付金額 (供 UI 卡片顯示參考)
+  const sharePerPersonTWD = totalTWD / (ALL_TRAVELERS.length || 2);
 
   // 構造每位旅伴的 Balance 物件
-  const balances: ParticipantBalance[] = participantList.map((name) => {
-    const paidTWD = paidMap[name] || 0;
-    const shareTWD = shareMap[name] || 0;
-    const balanceTWD = paidTWD - shareTWD;
+  const balances: ParticipantBalance[] = ALL_TRAVELERS.map((name) => {
+    const state = financialState[name];
     return {
       name,
-      paidTWD: Math.round(paidTWD * 100) / 100, // 保留兩位小數
-      shareTWD: Math.round(shareTWD * 100) / 100,
-      balanceTWD: Math.round(balanceTWD * 100) / 100,
+      paidTWD: Math.round(state.Paid * 100) / 100,
+      shareTWD: Math.round(state.Owed * 100) / 100,
+      balanceTWD: Math.round(state.Balance * 100) / 100,
     };
   });
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Expense } from '../types';
-import { convertToTWD } from '../utils/settlement';
+import { convertToTWD, ALL_TRAVELERS, normalizeName } from '../utils/settlement';
 import { deleteExpense, updateExpense } from '../services/api';
 import { Calendar, User, Tag, Edit2, Trash2, X, Loader2 } from 'lucide-react';
 
@@ -10,6 +10,8 @@ interface ExpenseTableProps {
 }
 
 export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTableProps) {
+  const totalTWD = expenses.reduce((sum, exp) => sum + convertToTWD(exp.amount, exp.currency), 0);
+
   // UI 互動狀態
   const [isActionLoading, setIsActionLoading] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -93,13 +95,16 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
 
     setIsActionLoading(true);
     try {
+      const normalizedPayer = normalizeName(editPayer);
+      const normalizedParticipants = editParticipants.map(normalizeName);
+
       const updated = await updateExpense(currentEditExpense.id, {
         item: editItem.trim(),
         amount: Number(editAmount),
         currency: editCurrency,
-        payer: editPayer,
+        payer: normalizedPayer,
         date: currentEditExpense.date, // 保持原始日期
-        participants: editParticipants,
+        participants: normalizedParticipants,
       });
 
       // 本地局部更新 React State 該筆資料項目
@@ -119,7 +124,14 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
   };
 
   // 常用旅伴選項
-  const payerOptions = ['鮭魚', 'Coni'];
+  const payerOptions = ALL_TRAVELERS;
+
+  // 格式化分攤旅伴文字
+  const getParticipantsText = (parts: string[]) => {
+    if (!parts || parts.length === 0) return '全體';
+    if (parts.length === ALL_TRAVELERS.length) return '全體';
+    return parts.join(', ');
+  };
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden">
@@ -161,9 +173,7 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
                     </span>
                   </td>
                   <td className="py-4 px-6 font-semibold text-slate-650 text-xs">
-                    {exp.participants && exp.participants.length > 0
-                      ? (exp.participants.length === 2 ? '兩人平分' : exp.participants.join(', '))
-                      : '兩人平分'}
+                    {getParticipantsText(exp.participants)}
                   </td>
                   <td className="py-4 px-6 text-right font-medium text-slate-600 whitespace-nowrap">
                     {formatAmount(exp.amount, exp.currency)}
@@ -195,6 +205,18 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
               );
             })}
           </tbody>
+          <tfoot>
+            <tr className="bg-slate-50/50 font-extrabold border-t border-slate-200/80 text-sm">
+              <td className="py-4 px-6 text-slate-700" colSpan={4}>總計</td>
+              <td className="py-4 px-6 text-right text-slate-500 whitespace-nowrap">
+                {/* 原始金額混用不相加 */}
+              </td>
+              <td className="py-4 px-6 text-right text-teal-600 whitespace-nowrap text-base">
+                NT$ {Math.round(totalTWD).toLocaleString()}
+              </td>
+              <td className="py-4 px-6"></td>
+            </tr>
+          </tfoot>
         </table>
       </div>
 
@@ -217,9 +239,7 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
                     {exp.payer} (付)
                   </span>
                   <span className="text-slate-500 bg-slate-50 border border-slate-150 px-2 py-0.5 rounded-full text-2xs font-semibold">
-                    分攤: {exp.participants && exp.participants.length > 0
-                      ? (exp.participants.length === 2 ? '兩人' : exp.participants.join(', '))
-                      : '兩人'}
+                    分攤: {getParticipantsText(exp.participants)}
                   </span>
                   <span className="flex items-center gap-1">
                     <Calendar className="w-3 h-3 text-slate-400" />
@@ -253,6 +273,11 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
             </div>
           );
         })}
+        {/* 行動端總計卡片 */}
+        <div className="md:hidden p-4 bg-slate-50/80 border-t border-slate-100 flex justify-between items-center font-extrabold text-sm">
+          <span className="text-slate-650 text-slate-600">消費總計 (折合台幣)</span>
+          <span className="text-teal-600 text-base">NT$ {Math.round(totalTWD).toLocaleString()}</span>
+        </div>
       </div>
 
       {/* 編輯消費紀錄對話框 Modal */}
@@ -353,11 +378,26 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
 
               {/* 參與分攤人 */}
               <div>
-                <label className="block text-2xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-                  參與分攤人 (至少選擇一位)
-                </label>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="block text-2xs font-bold text-slate-400 uppercase tracking-wider">
+                    參與分攤人 (至少選擇一位)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (editParticipants.length < ALL_TRAVELERS.length) {
+                        setEditParticipants([...ALL_TRAVELERS]);
+                      } else {
+                        setEditParticipants([editPayer]);
+                      }
+                    }}
+                    className="text-2xs font-bold text-teal-600 hover:text-teal-700 transition-colors"
+                  >
+                    {editParticipants.length < ALL_TRAVELERS.length ? '一鍵全選' : '一鍵清空'}
+                  </button>
+                </div>
                 <div className="flex gap-4 p-3 border border-slate-200 rounded-xl bg-white">
-                  {['鮭魚', 'Coni'].map((name) => {
+                  {ALL_TRAVELERS.map((name) => {
                     const isChecked = editParticipants.includes(name);
                     return (
                       <label key={name} className="flex items-center gap-2 font-semibold text-slate-700 text-sm cursor-pointer select-none">
@@ -375,7 +415,7 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
                               setEditParticipants([...editParticipants, name]);
                             }
                           }}
-                          className="w-4 h-4 text-teal-600 border-slate-300 rounded-sm"
+                          className="w-4 h-4 text-teal-650 border-slate-350 rounded-xs focus:ring-teal-500/20"
                         />
                         {name}
                       </label>
