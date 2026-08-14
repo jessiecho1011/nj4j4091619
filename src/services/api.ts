@@ -143,7 +143,7 @@ const MOCK_EXPENSES: Expense[] = [
 function parseTimeFromStr(val: string): string {
   if (!val) return '';
   val = val.trim();
-  
+
   // 1. 如果是包含 'T' 的 ISO 字串，試著用 Date 解析
   if (val.includes('T')) {
     const dateObj = new Date(val);
@@ -180,10 +180,10 @@ export async function getItinerary(): Promise<ItineraryDay[]> {
       throw new Error(`Failed to fetch itinerary: ${response.statusText}`);
     }
     const json = await response.json();
-    
+
     // 後端回傳格式可能是 {"success": true, "data": [...]} 或是直接陣列
     const rawList = Array.isArray(json) ? json : (json.success && Array.isArray(json.data) ? json.data : null);
-    
+
     if (!rawList) {
       throw new Error('Invalid itinerary data structure');
     }
@@ -209,9 +209,9 @@ export async function getItinerary(): Promise<ItineraryDay[]> {
       if (!dateStr) {
         dateStr = new Date().toISOString().split('T')[0];
       }
-      
+
       const name = item.name || item.itemName || '景點項目';
-      
+
       // 提取時間 (非排他性提取鏈)
       let timeStr = '';
       if (item.time && typeof item.time === 'string') {
@@ -235,7 +235,7 @@ export async function getItinerary(): Promise<ItineraryDay[]> {
 
     const adaptedItinerary: ItineraryDay[] = sortedDates.map((dateStr, index) => {
       const items = groupedByDate[dateStr];
-      
+
       // 依時間排序 (如果沒有時間，就以原本的順序/日期排序)
       items.sort((a, b) => {
         if (a.time && b.time) {
@@ -284,7 +284,7 @@ export async function getExpenses(): Promise<Expense[]> {
       throw new Error(`Failed to fetch expenses: ${response.statusText}`);
     }
     const json = await response.json();
-    
+
     const rawList = Array.isArray(json) ? json : (json.success && Array.isArray(json.data) ? json.data : null);
 
     if (!rawList) {
