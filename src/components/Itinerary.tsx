@@ -1,4 +1,4 @@
-import { Calendar, MapPin, Sparkles } from 'lucide-react';
+import { MapPin, Sparkles } from 'lucide-react';
 import { ItineraryDay } from '../types';
 
 interface ItineraryProps {
