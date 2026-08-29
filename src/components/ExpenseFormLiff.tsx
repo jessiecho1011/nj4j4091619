@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import liff from '@line/liff';
-import { Palmtree, Send, AlertTriangle, CheckCircle, Smartphone } from 'lucide-react';
+import { Send, CheckCircle } from 'lucide-react';
 
 export default function ExpenseFormLiff() {
   // 表單狀態
