@@ -3,7 +3,8 @@ import { Expense, ParticipantBalance, TransferSuggestion } from '../types';
 export const ALL_TRAVELERS = ['鮭魚', 'Coni'];
 export const PARTICIPANTS = ALL_TRAVELERS;
 export const TOTAL_PARTICIPANTS = ALL_TRAVELERS.length;
-export const EXCHANGE_RATE_PHP_TO_TWD = 1.7; // 1 TWD = 1.7 PHP
+export const EXCHANGE_RATE_PHP_TO_TWD = 0.55; // 1 PHP = 0.55 TWD
+export const EXCHANGE_RATE_USD_TO_TWD = 31.5; // 1 USD = 31.5 TWD
 
 /**
  * 旅伴名稱標準化輔助函式
@@ -18,8 +19,12 @@ export function normalizeName(name: string): string {
  * 將消費金額統一換算為 TWD
  */
 export function convertToTWD(amount: number, currency: string): number {
-  if (currency.toUpperCase() === 'PHP') {
-    return amount / EXCHANGE_RATE_PHP_TO_TWD;
+  const cur = currency.toUpperCase();
+  if (cur === 'PHP') {
+    return amount * EXCHANGE_RATE_PHP_TO_TWD;
+  }
+  if (cur === 'USD') {
+    return amount * EXCHANGE_RATE_USD_TO_TWD;
   }
   return amount; // 預設為 TWD
 }

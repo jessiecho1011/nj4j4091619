@@ -25,7 +25,7 @@ export default function Settlement({ expenses, onExpensesChange }: SettlementPro
           旅費自動化分帳結算
         </h2>
         <p className="mt-4 text-lg text-slate-600 max-w-xl mx-auto">
-          統一匯率換算 (1 TWD = 1.7 PHP)，一鍵算清所有人應收付餘額，實現無痛分帳。
+          統一匯率換算 (1 PHP = 0.55 TWD)，一鍵算清所有人應收付餘額，實現無痛分帳。
         </p>
       </div>
 
@@ -43,7 +43,7 @@ export default function Settlement({ expenses, onExpensesChange }: SettlementPro
             </div>
             <div className="text-xs text-slate-400 mt-1 flex items-center gap-1">
               <Info className="w-3 h-3" />
-              匯率: 1 TWD = 1.7 PHP
+              匯率: 1 PHP = 0.55 TWD
             </div>
           </div>
         </div>

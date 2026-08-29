@@ -36,8 +36,12 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
 
   // 格式化金額顯示
   const formatAmount = (amount: number, currency: string) => {
-    if (currency.toUpperCase() === 'PHP') {
+    const cur = currency.toUpperCase();
+    if (cur === 'PHP') {
       return `₱${amount.toLocaleString()}`;
+    }
+    if (cur === 'USD') {
+      return `$${amount.toLocaleString()}`;
     }
     return `NT$${amount.toLocaleString()}`;
   };
@@ -353,6 +357,7 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
                   >
                     <option value="PHP">PHP 菲律賓披索 (₱)</option>
                     <option value="TWD">TWD 新台幣 (NT$)</option>
+                    <option value="USD">USD 美金 ($)</option>
                   </select>
                 </div>
               </div>

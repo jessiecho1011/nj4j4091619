@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import Itinerary from './components/Itinerary';
 import Settlement from './components/Settlement';
 import RateCalculator from './components/RateCalculator';
+import ExpenseFormLiff from './components/ExpenseFormLiff';
 import { getItinerary, getExpenses } from './services/api';
 import { ItineraryDay, Expense } from './types';
 import { Palmtree, RefreshCw, AlertCircle } from 'lucide-react';
@@ -13,6 +14,11 @@ export default function App() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  // 簡易條件式路由：當 URL 包含 liff=true、/liff 或 #/liff 時，獨立呈現記帳表單
+  const isLiffView = window.location.pathname === '/liff' ||
+                     window.location.hash === '#/liff' ||
+                     window.location.search.includes('liff=true');
 
   const loadData = async () => {
     setLoading(true);
@@ -35,8 +41,16 @@ export default function App() {
   };
 
   useEffect(() => {
+    if (isLiffView) {
+      setLoading(false);
+      return;
+    }
     loadData();
   }, []);
+
+  if (isLiffView) {
+    return <ExpenseFormLiff />;
+  }
 
   return (
     <div className="min-h-screen bg-transparent flex flex-col">

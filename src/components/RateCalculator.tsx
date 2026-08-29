@@ -14,7 +14,7 @@ export default function RateCalculator() {
     }
     const num = parseFloat(val);
     if (!isNaN(num)) {
-      const converted = num / EXCHANGE_RATE_PHP_TO_TWD;
+      const converted = num * EXCHANGE_RATE_PHP_TO_TWD;
       setTwdVal(Math.round(converted).toString());
     } else {
       setTwdVal('');
@@ -29,7 +29,7 @@ export default function RateCalculator() {
     }
     const num = parseFloat(val);
     if (!isNaN(num)) {
-      const converted = num * EXCHANGE_RATE_PHP_TO_TWD;
+      const converted = num / EXCHANGE_RATE_PHP_TO_TWD;
       setPhpVal(Math.round(converted).toString());
     } else {
       setPhpVal('');
@@ -43,16 +43,16 @@ export default function RateCalculator() {
 
   // 常用對照表數據
   const conversionList = [
-    { php: 20, twd: Math.round(20 / EXCHANGE_RATE_PHP_TO_TWD) },
-    { php: 50, twd: Math.round(50 / EXCHANGE_RATE_PHP_TO_TWD) },
-    { php: 100, twd: Math.round(100 / EXCHANGE_RATE_PHP_TO_TWD) },
-    { php: 200, twd: Math.round(200 / EXCHANGE_RATE_PHP_TO_TWD) },
-    { php: 500, twd: Math.round(500 / EXCHANGE_RATE_PHP_TO_TWD) },
-    { php: 1000, twd: Math.round(1000 / EXCHANGE_RATE_PHP_TO_TWD) },
-    { php: 2000, twd: Math.round(2000 / EXCHANGE_RATE_PHP_TO_TWD) },
-    { php: 3000, twd: Math.round(3000 / EXCHANGE_RATE_PHP_TO_TWD) },
-    { php: 5000, twd: Math.round(5000 / EXCHANGE_RATE_PHP_TO_TWD) },
-    { php: 10000, twd: Math.round(10000 / EXCHANGE_RATE_PHP_TO_TWD) },
+    { php: 20, twd: Math.round(20 * EXCHANGE_RATE_PHP_TO_TWD) },
+    { php: 50, twd: Math.round(50 * EXCHANGE_RATE_PHP_TO_TWD) },
+    { php: 100, twd: Math.round(100 * EXCHANGE_RATE_PHP_TO_TWD) },
+    { php: 200, twd: Math.round(200 * EXCHANGE_RATE_PHP_TO_TWD) },
+    { php: 500, twd: Math.round(500 * EXCHANGE_RATE_PHP_TO_TWD) },
+    { php: 1000, twd: Math.round(1000 * EXCHANGE_RATE_PHP_TO_TWD) },
+    { php: 2000, twd: Math.round(2000 * EXCHANGE_RATE_PHP_TO_TWD) },
+    { php: 3000, twd: Math.round(3000 * EXCHANGE_RATE_PHP_TO_TWD) },
+    { php: 5000, twd: Math.round(5000 * EXCHANGE_RATE_PHP_TO_TWD) },
+    { php: 10000, twd: Math.round(10000 * EXCHANGE_RATE_PHP_TO_TWD) },
   ];
 
   return (
@@ -67,7 +67,7 @@ export default function RateCalculator() {
           宿霧即時匯率計算
         </h2>
         <p className="mt-4 text-sm sm:text-base text-slate-600 max-w-xl mx-auto">
-          固定匯率基準：1 TWD = {EXCHANGE_RATE_PHP_TO_TWD} PHP。免去彈窗，專為行動端單手操作設計。
+          固定匯率基準：1 PHP = {EXCHANGE_RATE_PHP_TO_TWD} TWD。免去彈窗，專為行動端單手操作設計。
         </p>
       </div>
 
@@ -114,7 +114,7 @@ export default function RateCalculator() {
               </button>
             </div>
             <p className="text-xs text-slate-400 mb-6">
-              任意輸入其中一方金額，系統將以 1 : 1.7 的匯率即時為您雙向轉換。
+              任意輸入其中一方金額，系統將以 1 PHP = 0.55 TWD 的匯率即時為您雙向轉換。
             </p>
           </div>
 
