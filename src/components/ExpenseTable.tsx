@@ -180,7 +180,7 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
                     {getParticipantsText(exp.participants)}
                   </td>
                   <td className="py-4 px-6 text-right font-medium text-slate-600 whitespace-nowrap">
-                    {formatAmount(exp.amount, exp.currency)}
+                    {formatAmount(exp.amount, exp.currency)} ({exp.currency})
                   </td>
                   <td className="py-4 px-6 text-right font-bold text-teal-600 whitespace-nowrap">
                     NT$ {Math.round(twdAmount).toLocaleString()}
@@ -251,7 +251,7 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
                   </span>
                 </div>
                 <span className="text-slate-400">
-                  原幣: {formatAmount(exp.amount, exp.currency)}
+                  原幣: {formatAmount(exp.amount, exp.currency)} ({exp.currency})
                 </span>
               </div>
 
