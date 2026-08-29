@@ -56,7 +56,7 @@ export default function RateCalculator() {
   ];
 
   return (
-    <section id="calculator" className="py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto scroll-mt-12">
+    <section id="calculator" className="py-10 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto scroll-mt-12">
       {/* 區塊標頭 */}
       <div className="text-center mb-12">
         <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-100 text-teal-700 text-xs font-semibold uppercase tracking-wider mb-3">
@@ -72,32 +72,9 @@ export default function RateCalculator() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-        {/* 左側：常用整數速查對照表 */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-xs p-6">
-          <h3 className="text-base font-bold text-slate-800 mb-4 flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />
-            常用比索對照速查表 (PHP ➔ TWD)
-          </h3>
-          <p className="text-xs text-slate-400 mb-4">
-            出門在外的購物小助手，列出常見面額，讓您一眼看清台幣大約價值。
-          </p>
 
-          <div className="grid grid-cols-2 gap-3">
-            {conversionList.map((item) => (
-              <div key={item.php} className="flex justify-between items-center py-2.5 px-3 rounded-xl border border-slate-150 hover:bg-slate-50/50 hover:border-teal-100 transition-all font-semibold text-2xs sm:text-xs">
-                <div className="flex items-center gap-1 text-slate-500">
-                  <span className="text-2xs">₱</span>
-                  {item.php.toLocaleString()}
-                </div>
-                <div className="text-teal-600 font-bold">
-                  ≈ NT$ {item.twd.toLocaleString()}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
 
-        {/* 右側：雙向輸入計算機 */}
+        {/* 左側：雙向輸入計算機 */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-xs p-6 h-full flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
@@ -169,6 +146,30 @@ export default function RateCalculator() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+        {/* 右側：常用整數速查對照表 */}
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-xs p-6">
+          <h3 className="text-base font-bold text-slate-800 mb-4 flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />
+            常用比索對照速查表 (PHP ➔ TWD)
+          </h3>
+          <p className="text-xs text-slate-400 mb-4">
+            出門在外的購物小助手，列出常見面額，讓您一眼看清台幣大約價值。
+          </p>
+
+          <div className="grid grid-col-1 sm:grid-cols-2 gap-3">
+            {conversionList.map((item) => (
+              <div key={item.php} className="flex justify-between items-center py-2.5 px-3 rounded-xl border border-slate-150 hover:bg-slate-50/50 hover:border-teal-100 transition-all font-semibold text-2xs sm:text-xs">
+                <div className="flex items-center gap-1 text-slate-500">
+                  <span className="text-2xs">₱</span>
+                  {item.php.toLocaleString()}
+                </div>
+                <div className="text-teal-600 font-bold">
+                  ≈ NT$ {item.twd.toLocaleString()}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

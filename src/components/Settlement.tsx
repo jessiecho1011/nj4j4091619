@@ -14,7 +14,7 @@ export default function Settlement({ expenses, onExpensesChange }: SettlementPro
   const transferSuggestions = generateTransferPlan(balances);
 
   return (
-    <section id="settlement" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-12">
+    <section id="settlement" className="py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-12">
       {/* 區塊標頭 */}
       <div className="text-center mb-16">
         <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-100 text-teal-700 text-xs font-semibold uppercase tracking-wider mb-3">
@@ -106,8 +106,8 @@ export default function Settlement({ expenses, onExpensesChange }: SettlementPro
                 <div
                   key={person.name}
                   className={`p-5 rounded-2xl border transition-all ${isCreditor
-                      ? 'bg-emerald-50/20 border-emerald-100/60 hover:border-emerald-200'
-                      : 'bg-rose-50/20 border-rose-100/60 hover:border-rose-200'
+                    ? 'bg-emerald-50/20 border-emerald-100/60 hover:border-emerald-200'
+                    : 'bg-rose-50/20 border-rose-100/60 hover:border-rose-200'
                     }`}
                 >
                   <div className="flex justify-between items-start">
@@ -122,8 +122,8 @@ export default function Settlement({ expenses, onExpensesChange }: SettlementPro
                     </div>
                     <span
                       className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold ${isCreditor
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-rose-100 text-rose-800'
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : 'bg-rose-100 text-rose-800'
                         }`}
                     >
                       {isCreditor ? (

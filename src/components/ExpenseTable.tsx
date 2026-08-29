@@ -236,7 +236,7 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
                   NT$ {Math.round(twdAmount).toLocaleString()}
                 </span>
               </div>
-              <div className="flex justify-between items-center text-xs text-slate-500">
+              <div className="flex flex-col gap-3 text-xs text-slate-500">
                 <div className="flex items-center gap-3">
                   <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-2xs font-semibold border ${getPayerStyle(exp.payer)}`}>
                     <User className="w-2.5 h-2.5 mr-0.5" />
@@ -245,7 +245,7 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
                   <span className="text-slate-500 bg-slate-50 border border-slate-150 px-2 py-0.5 rounded-full text-2xs font-semibold">
                     分攤: {getParticipantsText(exp.participants)}
                   </span>
-                  <span className="flex items-center gap-1">
+                  <span className="flex items-center gap-1 ml-auto">
                     <Calendar className="w-3 h-3 text-slate-400" />
                     {formatDate(exp.date).split(' ')[0]}
                   </span>
@@ -260,7 +260,7 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
                 <button
                   onClick={() => handleStartEdit(exp)}
                   disabled={isActionLoading}
-                  className="flex items-center gap-1 px-3 py-1 rounded-lg text-2xs font-bold text-teal-600 bg-teal-50 hover:bg-teal-500 hover:text-white border border-teal-150 transition-all active:scale-95"
+                  className="flex items-center gap-1 px-2 py-1 rounded-lg text-sm font-bold text-teal-600 bg-teal-50 hover:bg-teal-500 hover:text-white border border-teal-150 transition-all active:scale-95"
                 >
                   <Edit2 className="w-3 h-3" />
                   修改
@@ -268,7 +268,7 @@ export default function ExpenseTable({ expenses, onExpensesChange }: ExpenseTabl
                 <button
                   onClick={() => handleDeleteClick(exp.id)}
                   disabled={isActionLoading}
-                  className="flex items-center gap-1 px-3 py-1 rounded-lg text-2xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-500 hover:text-white border border-rose-150 transition-all active:scale-95"
+                  className="flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-bold text-rose-600 bg-rose-50 hover:bg-rose-500 hover:text-white border border-rose-150 transition-all active:scale-95"
                 >
                   <Trash2 className="w-3 h-3" />
                   刪除
